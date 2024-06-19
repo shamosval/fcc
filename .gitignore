@@ -1,0 +1,8 @@
+.idea/*
+!.idea/scopes
+!.idea/watcherTasks.xml
+*.gif
+*.png
+*.mp4
+*.jpg
+config.yml
