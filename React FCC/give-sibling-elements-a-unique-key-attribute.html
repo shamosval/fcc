@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        Give Sibling Elements a Unique Key Attribute
+    </title>
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src="https://unpkg.com/prop-types@15.8.1/prop-types.js"></script>
+</head>
+<body>
+<div id="challenge-node"></div>
+<script type="text/babel">
+
+    const frontEndFrameworks = [
+        'React',
+        'Angular',
+        'Ember',
+        'Knockout',
+        'Backbone',
+        'Vue'
+    ];
+
+    function Frameworks() {
+        const renderFrameworks = frontEndFrameworks.map((item) => (
+
+            <li key={item}>{item}</li>
+        )); // Change this line
+        return (
+            <div>
+                <h1>Popular Front End JavaScript Frameworks</h1>
+                <ul>
+                    {renderFrameworks}
+                </ul>
+            </div>
+        );
+    };
+
+    ReactDOM.render(<Frameworks />, document.getElementById('challenge-node'));
+
+
+</script>
+</body>
+</html>
+
+<!--
+The last challenge showed how the map method is used to dynamically render a number of elements based on user input. However, there was an important piece missing from that example. When you create an array of elements, each one needs a key attribute set to a unique value. React uses these keys to keep track of which items are added, changed, or removed. This helps make the re-rendering process more efficient when the list is modified in any way.
+
+Note: Keys only need to be unique between sibling elements, they don't need to be globally unique in your application.
+
+The code editor has an array with some front end frameworks and a stateless functional component named Frameworks(). Frameworks() needs to map the array to an unordered list, much like in the last challenge. Finish writing the map callback to return an li element for each framework in the frontEndFrameworks array. This time, make sure to give each li a key attribute, set to a unique value. The li elements should also contain text from frontEndFrameworks.
+
+Normally, you want to make the key something that uniquely identifies the element being rendered. As a last resort the array index may be used, but typically you should try to use a unique identification.
+
+Run the Tests (Ctrl + Enter)
+Reset this lesson
+Get Help
+Tests
+Passed:1. The Frameworks component should exist and render to the page.
+Passed:2. Frameworks should render an h1 element.
+Passed:3. Frameworks should render a ul element.
+Passed:4. The ul tag should render 6 child li elements.
+Passed:5. Each list item element should have a unique key attribute.
+Passed:6. Each list item element should contain text from frontEndFrameworks.
+
+-->
