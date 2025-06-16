@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Use Middleware to Handle Asynchronous Actions</title>
+  <script src="https://unpkg.com/redux@4.2.1/dist/redux.min.js"></script>
+  <script src="https://unpkg.com/redux-thunk@2.4.2/dist/redux-thunk.min.js"></script>
+</head>
+<body>
+
+<script>
+  const { createStore, applyMiddleware } = window.Redux;
+  const ReduxThunk = window.ReduxThunk;
+
+  const REQUESTING_DATA = 'REQUESTING_DATA';
+  const RECEIVED_DATA = 'RECEIVED_DATA';
+
+  const requestingData = () => ({ type: REQUESTING_DATA });
+  const receivedData = (data) => ({ type: RECEIVED_DATA, users: data.users });
+
+  const handleAsync = () => {
+    return function(dispatch) {
+      dispatch(requestingData());
+      setTimeout(() => {
+        const data = {
+          users: ['Jeff', 'William', 'Alice']
+        };
+        dispatch(receivedData(data));
+        console.log("Data received:", data);
+      }, 2500);
+    };
+  };
+
+  const defaultState = {
+    fetching: false,
+    users: []
+  };
+
+  const asyncDataReducer = (state = defaultState, action) => {
+    switch(action.type) {
+      case REQUESTING_DATA:
+        return {
+          fetching: true,
+          users: []
+        };
+      case RECEIVED_DATA:
+        return {
+          fetching: false,
+          users: action.users
+        };
+      default:
+        return state;
+    }
+  };
+
+  const store = createStore(
+          asyncDataReducer,
+          applyMiddleware(ReduxThunk)
+  );
+
+  // Subscribe to state changes so you can see them in console
+  store.subscribe(() => {
+    console.log("Current state:", store.getState());
+  });
+
+  // Dispatch the async action
+  store.dispatch(handleAsync());
+
+</script>
+
+</body>
+</html>
