@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FCC Pomodoro Clock</title>
+
+  <!-- React -->
+  <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+
+  <!-- Babel -->
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+  <style>
+    body {
+      background: #121212;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    #clock {
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 10px;
+      width: 320px;
+      text-align: center;
+    }
+
+    .length-control {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 10px 0;
+    }
+
+    button {
+      padding: 5px 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #display-box {
+      margin: 20px 0;
+      padding: 15px;
+      background: black;
+      border-radius: 5px;
+    }
+
+    #time-left {
+      font-size: 32px;
+    }
+  </style>
+</head>
+
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+  function Clock() {
+    const [breakLength, setBreakLength] = React.useState(5);
+    const [sessionLength, setSessionLength] = React.useState(25);
+    const [timeLeft, setTimeLeft] = React.useState(25 * 60);
+    const [label, setLabel] = React.useState("Session");
+    const [running, setRunning] = React.useState(false);
+    const intervalRef = React.useRef(null);
+    const beepRef = React.useRef(null);
+
+    const formatTime = (time) => {
+      const min = String(Math.floor(time / 60)).padStart(2, "0");
+      const sec = String(time % 60).padStart(2, "0");
+      return `${min}:${sec}`;
+    };
+
+    const reset = () => {
+      clearInterval(intervalRef.current);
+      setRunning(false);
+      setBreakLength(5);
+      setSessionLength(25);
+      setTimeLeft(25 * 60);
+      setLabel("Session");
+      beepRef.current.pause();
+      beepRef.current.currentTime = 0;
+    };
+
+    const toggle = () => {
+      if (running) {
+        clearInterval(intervalRef.current);
+        setRunning(false);
+        return;
+      }
+
+      setRunning(true);
+      intervalRef.current = setInterval(() => {
+        setTimeLeft(prevTime => {
+          if (prevTime === 0) {
+            beepRef.current.play();
+
+            setLabel(prevLabel => {
+              if (prevLabel === "Session") {
+                setTimeLeft(breakLength * 60);
+                return "Break";
+              } else {
+                setTimeLeft(sessionLength * 60);
+                return "Session";
+              }
+            });
+
+            return prevTime; // keep 00:00 for this tick
+          }
+
+          return prevTime - 1;
+        });
+      }, 1000);
+    };
+
+    const adjust = (type, amount) => {
+      if (running) return;
+
+      if (type === "break") {
+        setBreakLength(prev => {
+          const val = prev + amount;
+          return val >= 1 && val <= 60 ? val : prev;
+        });
+      } else {
+        setSessionLength(prev => {
+          const val = prev + amount;
+          if (val >= 1 && val <= 60) {
+            setTimeLeft(val * 60);
+            return val;
+          }
+          return prev;
+        });
+      }
+    };
+
+    return (
+            <div id="clock">
+              <div className="length-control">
+                <div>
+                  <div id="break-label">Break Length</div>
+                  <button id="break-decrement" onClick={() => adjust("break", -1)}>-</button>
+                  <span id="break-length">{breakLength}</span>
+                  <button id="break-increment" onClick={() => adjust("break", 1)}>+</button>
+                </div>
+
+                <div>
+                  <div id="session-label">Session Length</div>
+                  <button id="session-decrement" onClick={() => adjust("session", -1)}>-</button>
+                  <span id="session-length">{sessionLength}</span>
+                  <button id="session-increment" onClick={() => adjust("session", 1)}>+</button>
+                </div>
+              </div>
+
+              <div id="display-box">
+                <div id="timer-label">{label}</div>
+                <div id="time-left">{formatTime(timeLeft)}</div>
+              </div>
+
+              <button id="start_stop" onClick={toggle}>Start / Stop</button>
+              <button id="reset" onClick={reset}>Reset</button>
+
+              <audio
+                      id="beep"
+                      ref={beepRef}
+                      src="https://sampleswap.org/samples-ghost/VOCALS%20and%20SPOKEN%20WORD/FEMALE%20MISC%20and%20SPOKEN%20WORD/188[kb]transfer_complete.wav.mp3"
+              />
+            </div>
+    );
+  }
+
+  ReactDOM.render(<Clock />, document.getElementById("root"));
+</script>
+</body>
+</html>
