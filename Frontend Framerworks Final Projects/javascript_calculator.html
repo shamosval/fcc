@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>FCC JS Calculator</title>
+
+    <!-- React -->
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+
+    <!-- Babel -->
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+    <style>
+        body {
+            background: #121212;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+
+        #calculator {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+        }
+
+        #display {
+            background: black;
+            color: lime;
+            padding: 15px;
+            font-size: 24px;
+            text-align: right;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        button {
+            padding: 15px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .operator {
+            background: #ff9800;
+        }
+
+        .number {
+            background: #444;
+            color: white;
+        }
+
+        #equals {
+            grid-column: span 2;
+            background: #4caf50;
+        }
+
+        #clear {
+            background: #f44336;
+            grid-column: span 2;
+        }
+    </style>
+</head>
+
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+    function Calculator() {
+        const [display, setDisplay] = React.useState("0");
+        const [expression, setExpression] = React.useState("");
+        const [evaluated, setEvaluated] = React.useState(false);
+
+        const isOperator = (val) => /[+\-*/]/.test(val);
+
+        const clearAll = () => {
+            setDisplay("0");
+            setExpression("");
+            setEvaluated(false);
+        };
+
+        const handleNumber = (num) => {
+            if (evaluated) {
+                setDisplay(num);
+                setExpression(num);
+                setEvaluated(false);
+                return;
+            }
+
+            if (display === "0" && num === "0") return;
+
+            if (display === "0") {
+                setDisplay(num);
+                setExpression(expression + num);
+            } else {
+                setDisplay(display + num);
+                setExpression(expression + num);
+            }
+        };
+
+        const handleDecimal = () => {
+            if (evaluated) {
+                setDisplay("0.");
+                setExpression("0.");
+                setEvaluated(false);
+                return;
+            }
+
+            if (!display.includes(".")) {
+                setDisplay(display + ".");
+                setExpression(expression + ".");
+            }
+        };
+
+        const handleOperator = (op) => {
+            if (evaluated) {
+                setExpression(display + op);
+                setDisplay(op);
+                setEvaluated(false);
+                return;
+            }
+
+            if (isOperator(expression.slice(-1))) {
+                // Allow negative sign
+                if (op === "-" && !expression.slice(-1).includes("-")) {
+                    setExpression(expression + op);
+                    setDisplay(op);
+                } else {
+                    // Replace last operator(s)
+                    setExpression(expression.replace(/[+\-*/]+$/, op));
+                    setDisplay(op);
+                }
+            } else {
+                setExpression(expression + op);
+                setDisplay(op);
+            }
+        };
+
+        const handleEquals = () => {
+            if (!expression) return;
+
+            let sanitized = expression.replace(/[+\-*/]+$/, "");
+            let result = eval(sanitized);
+
+            // Precision handling
+            result = Math.round(result * 100000) / 100000;
+
+            setDisplay(result.toString());
+            setExpression(result.toString());
+            setEvaluated(true);
+        };
+
+        return (
+            <div id="calculator">
+                <div id="display">{display}</div>
+
+                <div className="buttons">
+                    <button id="clear" onClick={clearAll}>AC</button>
+                    <button id="divide" className="operator" onClick={() => handleOperator("/")}>/</button>
+                    <button id="multiply" className="operator" onClick={() => handleOperator("*")}>*</button>
+
+                    <button id="seven" className="number" onClick={() => handleNumber("7")}>7</button>
+                    <button id="eight" className="number" onClick={() => handleNumber("8")}>8</button>
+                    <button id="nine" className="number" onClick={() => handleNumber("9")}>9</button>
+                    <button id="subtract" className="operator" onClick={() => handleOperator("-")}>-</button>
+
+                    <button id="four" className="number" onClick={() => handleNumber("4")}>4</button>
+                    <button id="five" className="number" onClick={() => handleNumber("5")}>5</button>
+                    <button id="six" className="number" onClick={() => handleNumber("6")}>6</button>
+                    <button id="add" className="operator" onClick={() => handleOperator("+")}>+</button>
+
+                    <button id="one" className="number" onClick={() => handleNumber("1")}>1</button>
+                    <button id="two" className="number" onClick={() => handleNumber("2")}>2</button>
+                    <button id="three" className="number" onClick={() => handleNumber("3")}>3</button>
+                    <button id="equals" onClick={handleEquals}>=</button>
+
+                    <button id="zero" className="number" onClick={() => handleNumber("0")}>0</button>
+                    <button id="decimal" className="number" onClick={handleDecimal}>.</button>
+                </div>
+            </div>
+        );
+    }
+
+    ReactDOM.render(<Calculator/>, document.getElementById("root"));
+</script>
+</body>
+</html>
