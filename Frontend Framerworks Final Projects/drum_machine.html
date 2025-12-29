@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FCC Drum Machine</title>
+
+  <!-- React + ReactDOM -->
+  <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
+
+  <!-- Babel -->
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+  <style>
+    body {
+      background: #1e1e1e;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #fff;
+    }
+
+    #drum-machine {
+      background: #2c2c2c;
+      padding: 20px;
+      border-radius: 10px;
+      width: 300px;
+      text-align: center;
+    }
+
+    #display {
+      background: #111;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+      min-height: 20px;
+    }
+
+    .pad-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .drum-pad {
+      background: #444;
+      border-radius: 5px;
+      padding: 20px 0;
+      cursor: pointer;
+      user-select: none;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .drum-pad:active {
+      background: #ff9800;
+    }
+  </style>
+</head>
+
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+  const pads = [
+    {
+      key: "Q",
+      id: "What!",
+      src: "https://sampleswap.org/samples-ghost/DRUMS%20(SINGLE%20HITS)/Voice/47[kb]what-2.wav.mp3"
+    },
+    {
+      key: "W",
+      id: "Grunt",
+      src: "https://sampleswap.org/samples-ghost/DRUMS%20(SINGLE%20HITS)/Voice/22[kb]gruntooh.wav.mp3"
+    },
+    {
+      key: "E",
+      id: "Snare",
+      src: "https://sampleswap.org/samples-ghost/DRUMS%20(SINGLE%20HITS)/Snares/33[kb]909sd.wav.mp3"
+    },
+    {
+      key: "A",
+      id: "Distorto Shaka Hit",
+      src: "https://sampleswap.org/samples-ghost/DRUMS%20(SINGLE%20HITS)/Western%20and%20Latin%20Percussion/46[kb]distorto-shaka-hit.wav.mp3"
+    },
+    {
+      key: "S",
+      id: "Hard Sleigh",
+      src: "https://sampleswap.org/samples-ghost/DRUMS%20(SINGLE%20HITS)/Western%20and%20Latin%20Percussion/105[kb]hardsleigh.wav.mp3"
+    },
+    {
+      key: "D",
+      id: "Snap",
+      src: "https://sampleswap.org/samples-ghost/DRUMS%20(SINGLE%20HITS)/Western%20and%20Latin%20Percussion/15[kb]snap.wav.mp3"
+    },
+    {
+      key: "Z",
+      id: "Whistle",
+      src: "https://sampleswap.org/samples-ghost/DRUMS%20(SINGLE%20HITS)/Western%20and%20Latin%20Percussion/19[kb]whistle1.wav.mp3"
+    },
+    {
+      key: "X",
+      id: "Kick",
+      src: "https://sampleswap.org/samples-ghost/DRUMS%20(FULL%20KITS)/DRUM%20MACHINES/Jomox%20MBase%2001/208[kb]jmox-mbase-k03b.wav.mp3"
+    },
+    {
+      key: "C",
+      id: "Shaker",
+      src: "https://sampleswap.org/samples-ghost/DRUMS%20(SINGLE%20HITS)/Western%20and%20Latin%20Percussion/10[kb]WS-shaker.wav.mp3"
+    }
+  ];
+
+  function DrumPad({ pad, playSound }) {
+    return (
+            <div
+                    className="drum-pad"
+                    id={pad.id}
+                    onClick={() => playSound(pad.key, pad.id)}
+            >
+              {pad.key}
+              <audio
+                      className="clip"
+                      id={pad.key}
+                      src={pad.src}
+              />
+            </div>
+    );
+  }
+
+  function DrumMachine() {
+    const [display, setDisplay] = React.useState("");
+
+    const playSound = (key, id) => {
+      const audio = document.getElementById(key);
+      audio.currentTime = 0;
+      audio.play();
+      setDisplay(id);
+    };
+
+    React.useEffect(() => {
+      const handleKeyPress = (e) => {
+        const key = e.key.toUpperCase();
+        const pad = pads.find(p => p.key === key);
+        if (pad) {
+          playSound(pad.key, pad.id);
+        }
+      };
+
+      window.addEventListener("keydown", handleKeyPress);
+      return () => window.removeEventListener("keydown", handleKeyPress);
+    }, []);
+
+    return (
+            <div id="drum-machine">
+              <div id="display">{display}</div>
+              <div className="pad-grid">
+                {pads.map(pad => (
+                        <DrumPad
+                                key={pad.key}
+                                pad={pad}
+                                playSound={playSound}
+                        />
+                ))}
+              </div>
+            </div>
+    );
+  }
+
+  ReactDOM.render(<DrumMachine />, document.getElementById("root"));
+</script>
+</body>
+</html>
